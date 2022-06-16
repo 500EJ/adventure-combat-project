@@ -32,19 +32,30 @@ class Player extends Character {
   }
 
   takeItem(itemName) {
-    // Fill this in
+    const itemIndex = this.currentRoom.items.findIndex(
+      item => item.name === itemName
+    );
+    this.items.push(this.currentRoom.items[itemIndex]);
+    this.currentRoom.items.splice(itemIndex, 1);
   }
 
   dropItem(itemName) {
-    // Fill this in
+    const itemIndex = this.items.findIndex(item => item.name === itemName);
+    this.currentRoom.items.push(this.items[itemIndex]);
+    this.items.splice(itemIndex, 1);
   }
 
   eatItem(itemName) {
-    // Fill this in
+    if (this.items.find(item => item.name === itemName) instanceof Food) {
+      this.items.splice(
+        this.items.findIndex(item => item.name === itemName),
+        1
+      );
+    }
   }
 
   getItemByName(name) {
-    // Fill this in
+    return this.items.find(item => item.name === name);
   }
 
   hit(name) {
