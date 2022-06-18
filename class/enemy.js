@@ -2,7 +2,10 @@ const { Character } = require("./character");
 
 class Enemy extends Character {
   constructor(name, description, currentRoom) {
-    // Fill this in
+    super(name, description, currentRoom);
+    this.cooldown = 3000;
+    this.attackTarget = null;
+    this.act();
   }
 
   setPlayer(player) {
@@ -10,11 +13,22 @@ class Enemy extends Character {
   }
 
   randomMove() {
-    // Fill this in
+    debugger;
+    const roomIndex = Math.floor(
+      Math.random() * this.currentRoom.getExits().length
+    );
+    const direction = this.currentRoom.getExits()[roomIndex];
+    this.currentRoom = this.currentRoom.getRoomInDirection(direction);
+    this.cooldown += 3000;
+    this.act();
   }
 
   takeSandwich() {
-    // Fill this in
+    const sandwichIndex = this.currentRoom.items.findIndex(
+      item => item.name === "sandwich"
+    );
+    this.items.push(this.currentRoom.items[sandwichIndex]);
+    this.currentRoom.items.splice(sandwichIndex, 1);
   }
 
   // Print the alert only if player is standing in the same room
@@ -26,19 +40,27 @@ class Enemy extends Character {
 
   rest() {
     // Wait until cooldown expires, then act
-    const resetCooldown = function () {
+    const resetCooldown = () => {
       this.cooldown = 0;
       this.act();
     };
-    setTimeout(resetCooldown, this.cooldown);
+    setTimeout(() => {
+      resetCooldown();
+    }, this.cooldown);
   }
 
   attack() {
-    // Fill this in
+    this.applyDamage(this.strength);
+    if (this.attackTarget.health === 0) {
+      this.attackTarget.die();
+      this.attackTarget = null;
+    }
+    this.cooldown += 3000;
+    this.act();
   }
 
   applyDamage(amount) {
-    // Fill this in
+    this.attackTarget.health -= amount;
   }
 
   act() {
@@ -46,18 +68,26 @@ class Enemy extends Character {
       // Dead, do nothing;
     } else if (this.cooldown > 0) {
       this.rest();
+    } else if (
+      this.attackTarget &&
+      this.attackTarget.currentRoom === this.currentRoom
+    ) {
+      this.attack();
+    } else if (this.attackTarget) {
+      this.randomMove();
+    } else if (this.currentRoom.getItemByName("sandwich")) {
+      this.takeSandwich();
     } else {
       this.scratchNose();
       this.rest();
     }
-
-    // Fill this in
   }
 
   scratchNose() {
-    this.cooldown += 1000;
+    this.cooldown += 3000;
 
     this.alert(`${this.name} scratches its nose`);
+    this.act();
   }
 }
 

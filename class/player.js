@@ -59,7 +59,9 @@ class Player extends Character {
   }
 
   hit(name) {
-    // Fill this in
+    const enemy = this.currentRoom.getEnemyByName(name);
+    enemy.health -= this.strength;
+    enemy.attackTarget = this;
   }
 
   die() {
